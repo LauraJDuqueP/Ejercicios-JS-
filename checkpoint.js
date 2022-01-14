@@ -6,12 +6,7 @@
 // en las homeowrks no es necesario que los vuelvan a definir.
 // NO DEBEN MODIFICAR EL ARCHIVO DS.js SINO QUE TODO SU CÓDIGO TENDRÁ QUE ESTAR EN ESTE ARCHIVO checkpoint.js
 
-const {
-  Queue,
-  Node,
-  LinkedList,
-  BinarySearchTree
-} = require('./DS.js');
+const { Queue, Node, LinkedList, BinarySearchTree } = require("./DS.js");
 
 // ----------------------
 
@@ -37,21 +32,25 @@ const {
 //  - Caso que devuelve false --> isAncestor(genealogyTree, "Jacqueline Bouvier", "Abigail Simpson")
 //  [Observar los tests para otros casos]
 
-var isAncestor = function(genealogyTree, ancestor, descendant){
-  // Tu código aca:
-
-}
-
+var isAncestor = function (genealogyTree, ancestor, descendant) {
+  const ancestorPerson = genealogyTree[ancestor];
+  if (ancestorPerson.length === 0) return false;
+  if (ancestorPerson.includes(descendant)) return true;
+  for (let i = 0; i < ancestorPerson.length; i++) {
+    if (genealogyTree[ancestorPerson[i]].includes(descendant)) return true;
+  }
+  return false;
+};
 
 // EJERCICIO 2
-// Secuencia inventada: f(n) = f(n-1) x f(n-2) - f(n-2)
+// Secuencia inventada:f(n) = f(n-1) x f(n-2) - f(n-2)
 // Siendo f, secuenciaHenry.
 // Donde las primeras dos posiciones son dadas por el parametro recibidos y a partir de
 // la siguiente se calcula como la multiplicación de los 2 números anteriores restados al número anterior.
 // object es un objeto del cual debemos obtener f(0) y f(1) siguiendo la siguiente lógica:
 // f(0) será el valor de la propiedad llamada 'first'
 // f(1) será un número igual a la cantidad de propiedades de obj
-// Por ejemplo si recibimos: 
+// Por ejemplo si recibimos:
 // var obj = {
 //   1: true,
 //   first: 2,
@@ -76,8 +75,15 @@ var isAncestor = function(genealogyTree, ancestor, descendant){
 // PISTA: Pueden utilizar el método Object.keys() para f(1)
 
 function secuenciaHenry(obj, n) {
+  const arr = [obj["first"], Object.keys(obj).length];
+  if (n < 0) return null;
+  if (n === 0) return arr[0];
+  if (n === 1) return arr[1];
+  for (let i = 2; i <= n; i++) {
+    arr.push(arr[i - 1] * arr[i - 2] - arr[i - 2]);
+  }
+  return arr[n];
   // Tu código aca:
-
 }
 
 // ---------------------
@@ -96,16 +102,22 @@ function secuenciaHenry(obj, n) {
 //    lista.add(3);
 //    lista.size(); --> 3
 
-LinkedList.prototype.size = function(){
+LinkedList.prototype.size = function () {
   // Tu código aca:
-
-}
-
+  let count = 0;
+  if (!this.head) return count;
+  let currNode = this.head;
+  while (currNode !== null) {
+    count++;
+    currNode = currNode.next;
+  }
+  return count;
+};
 
 // EJERCICIO 4
 // Implementar el método switchPos dentro del prototype de LinkedList que deberá intercambiar
 // el elemento que se encuentre en pos1 con el elemento en pos2
-// En el caso de que alguna de las dos posiciones no sea válida (Supere el tamaño de la lista actual 
+// En el caso de que alguna de las dos posiciones no sea válida (Supere el tamaño de la lista actual
 // o sea un número negativo) debe devolver false.
 // Si los nodos fueron removidos correctamente devolver true.
 // Aclaración: la posición cero corresponde al head de la LinkedList
@@ -117,13 +129,30 @@ LinkedList.prototype.size = function(){
 // Ejemplo 2:
 //    Suponiendo que se pide una posición inválida: removeFromPos(8) --> false
 
-LinkedList.prototype.switchPos = function(pos1, pos2){
+LinkedList.prototype.switchPos = function (pos1, pos2) {
+  if (pos1 < 0 || pos2 < 0) return false;
+  let index1 = 0;
+  let index2 = 0;
+  let pointer1 = this.head;
+  let pointer2 = this.head;
+  while (index1 !== pos1 && pointer1 !== null) {
+    pointer1 = pointer1.next;
+    index1++;
+  }
+  while (index2 !== pos2 && pointer2 !== null) {
+    pointer2 = pointer2.next;
+    index2++;
+  }
+  if (!pointer1 || !pointer2) return false;
+  const value1 = pointer1.value;
+  pointer1.value = pointer2.value;
+  pointer2.value = value1;
+  return true;
   // Tu código aca:
-
-}
+};
 
 // EJERCICIO 5
-// Implementar la función mergeLinkedLists que, a partir de dos listas simplemente enlazadas 
+// Implementar la función mergeLinkedLists que, a partir de dos listas simplemente enlazadas
 // del mismo tamaño retorne una nueva lista con los elementos de ambas listas
 // Ejemplo:
 //    Lista 1: Head --> 1 --> 7 --> 20 --> null
@@ -133,14 +162,22 @@ LinkedList.prototype.switchPos = function(pos1, pos2){
 // Nota: las listas enlazadas mergeadas intercalandose.
 // El nodo 1 de la lista 1, se conecta con el nodo 1 de la lista 2.
 // Continuando con el nodo 2 de la lista 2, conectandose con el nodo 2 de la lista 2.
-var mergeLinkedLists = function(linkedListOne, linkedListTwo){
+var mergeLinkedLists = function (linkedListOne, linkedListTwo) {
+  let x = new LinkedList();
+  let pointer1 = linkedListOne.head;
+  let pointer2 = linkedListTwo.head;
+  while (pointer1 || pointer2) {
+    x.add(pointer1.value);
+    x.add(pointer2.value);
+    pointer1 = pointer1.next;
+    pointer2 = pointer2.next;
+  }
+
+  return x;
   // Tu código aca:
-
-}
-
+};
 
 // ----------------------
-
 
 // ----- QUEUE -----
 
@@ -168,26 +205,23 @@ var mergeLinkedLists = function(linkedListOne, linkedListTwo){
 // La primera carta del jugador uno va a atacar a la segunda carta del jugador dos
 // La primer carta del jugador dos va a atacar a la segunda carta del jugador uno
 //
-// Primer carta del jugador 1 (ATAQUE) vs Segunda carta del jugador 2 (DEFENSA): 
+// Primer carta del jugador 1 (ATAQUE) vs Segunda carta del jugador 2 (DEFENSA):
 // {attack: 5, defense: 5} vs {attack: 5, defense: 26}
 // Ataque 5 vs Defensa 20 --> 5 no supera 20 --> No hay daño sobre el castillo
 //
-// Primer carta del jugador 2 (ATAQUE) vs Segunda carta del jugador 1 (DEFENSA): 
+// Primer carta del jugador 2 (ATAQUE) vs Segunda carta del jugador 1 (DEFENSA):
 // {attack: 20, defense: 26} vs {attack: 15, defense: 10}
 // Ataque 20 vs Defensa 10 --> 20 supera a 10 --> Como hay 10 puntos de diferencia esa cantidad de daño es aplicada
-// al castillo del jugador 1 
+// al castillo del jugador 1
 //
 // Una vez terminada la ronda, se procede a repetir lo mismo con las siguientes 2 cartas de cada jugaodr hasta
 // finalizar el juego.
 
-
-var cardGame = function(playerOneCards, playerTwoCards){
+var cardGame = function (playerOneCards, playerTwoCards) {
   // Tu código aca:
-
-}
+};
 
 // ---------------
-
 
 // ----- BST -----
 
@@ -205,14 +239,11 @@ var cardGame = function(playerOneCards, playerTwoCards){
 // Este arbol tiene una altura de 4
 // PISTA: Una forma de resolverlo es pensarlo recursivamente y usando Math.max
 
-BinarySearchTree.prototype.height = function(){
+BinarySearchTree.prototype.height = function () {
   // Tu código aca:
-
-}
-
+};
 
 // ---------------
-
 
 // Ejercicio 8
 // Dado un arreglo ordenado, encontrar el índice de un elemento específico pasado como parámetro
@@ -226,11 +257,19 @@ BinarySearchTree.prototype.height = function(){
 //    binarySearch(array, 2) --> Devolvería 1 ya que array[1] = 2
 //    [Donde 2 sería el número sobre el cuál queremos saber su posición en el array]
 
-
 var binarySearch = function (array, target) {
-  // Tu código aca:
-
-}
+  function recursiveFunction(arr, target, start, end) {
+    if (start > end) return -1;
+    let mid = Math.floor((start + end) / 2);
+    if (arr[mid] === target) return mid;
+    if (arr[mid] > target) {
+      return recursiveFunction(arr, target, start, mid - 1);
+    } else {
+      return recursiveFunction(arr, target, mid + 1, end);
+    }
+  }
+  return recursiveFunction(array, target, array[0], array[array.length - 1]);
+};
 
 // EJERCICIO 9
 // Ordená un arreglo de objetos usando un bubble sort pero con algunas particularidades.
@@ -255,10 +294,23 @@ var binarySearch = function (array, target) {
 //   {name: 'Leo', age: 40, height: 1.83}
 // ]
 
-var specialSort = function(array, orderFunction) {
+var specialSort = function (array, orderFunction) {
   // Tu código aca:
 
-}
+  let desordenado = true;
+  while (desordenado) {
+    desordenado = false;
+    for (let i = 0; i < array.length - 1; i++) {
+      if (orderFunction(array[i], array[i + 1]) === -1) {
+        let order = array[i + 1];
+        array[i + 1] = array[i];
+        array[i] = order;
+        desordenado = true;
+      }
+    }
+  }
+  return array;
+};
 
 // ----- Closures -----
 
@@ -290,7 +342,16 @@ var specialSort = function(array, orderFunction) {
 
 function closureDetect(symptoms, min) {
   // Tu código aca:
-
+  return function (person) {
+    let count = 0;
+    for (let i = 0; i <= person.symptoms.length; i++) {
+      if (count >= min) return true;
+      if (symptoms.includes(person.symptoms[i])) {
+        count++;
+      }
+    }
+    return false;
+  };
 }
 
 // -------------------
@@ -305,5 +366,5 @@ module.exports = {
   specialSort,
   closureDetect,
   BinarySearchTree,
-  mergeLinkedLists
+  mergeLinkedLists,
 };
